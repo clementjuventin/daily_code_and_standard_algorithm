@@ -1,0 +1,1 @@
+In this folder I take algorithm that I made and try to optimize them as far as I can, commenting my changes.
