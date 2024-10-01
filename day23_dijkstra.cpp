@@ -49,7 +49,7 @@ vector<tuple<int, int>> get_neightbours(vector<vector<bool>> *map, tuple<int, in
 
 int dijkstra(vector<vector<bool>> *map, tuple<int, int> start, tuple<int, int> end)
 {
-    size_t width = map->at(0).size();
+    size_t width = map->front().size();
     size_t height = map->size();
 
     int x = get<0>(start);

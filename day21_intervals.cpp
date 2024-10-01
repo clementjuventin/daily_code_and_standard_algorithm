@@ -27,10 +27,10 @@ int intervals(vector<tuple<int, int>> *time_intervals)
     deque<int> open;
     deque<int> close;
 
-    for (auto it = time_intervals->begin(); it != time_intervals->end(); it++)
+    for (auto &in : *time_intervals)
     {
-        open.push_back(get<0>(*it));
-        close.push_back(get<1>(*it));
+        open.push_back(get<0>(in));
+        close.push_back(get<1>(in));
     }
 
     sort(open.begin(), open.end());
@@ -38,7 +38,7 @@ int intervals(vector<tuple<int, int>> *time_intervals)
 
     uint count = 0;
     uint max = 0;
-    for (int i = 0; i < time_intervals->size() * 2; i++)
+    for (size_t i = 0, len = time_intervals->size() * 2; i < len; i++)
     {
         if (open.front() < close.front())
         {
