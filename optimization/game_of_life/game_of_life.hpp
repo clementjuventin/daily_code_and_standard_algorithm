@@ -14,3 +14,5 @@ struct PairHash
 void game_of_life_v1(std::vector<std::vector<bool>> &state);
 void game_of_life_v2(std::vector<std::vector<bool>> &state);
 void game_of_life_v3(std::unordered_set<std::pair<int, int>, PairHash> &state);
+
+void game_of_life_v4(void *state, size_t width, size_t height, unsigned int iterations);

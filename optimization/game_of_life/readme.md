@@ -63,7 +63,7 @@ BM_V2_BILOAF         5922 ns         5921 ns       115739
 BM_V2_BLOCK          1986 ns         1986 ns       358966
 BM_V2_BLINKER        2522 ns         2522 ns       267728
 BM_V2_GLIDER         3456 ns         3456 ns       198143
-BM_V2_EATER_1        3118 ns         3118 ns       224536HERSCHEL
+BM_V2_EATER_1        3118 ns         3118 ns       224536
 BM_V2_HERSCHEL       5498 ns         5497 ns       125663
 BM_V3_BILOAF        15368 ns        15366 ns        45004
 BM_V3_BLOCK          5089 ns         5089 ns       136550
@@ -81,6 +81,12 @@ At the same time, I wonder if it make sense to considere extra large game space.
 
 That's why I need to make a choice, either I decide to include extremely large state or I don't.
 
-After some thinking, I think we should include large state. In fact, there is no point of trying to optimize on small structures such as the one in my benchmark because it's already very fast. There structures are periodic and I can generate 100k+ iterations in a second which is totally useless. Something not useless is to generate 1k+ iterations on huge spaces. At the same time, I don't need a 2^512 x 2^512 game space.
+After some thinking, I think we should include large states. In fact, there is no point of trying to optimize on small structures such as the one in my benchmark because it's already very fast. These structures are periodic and I can generate 100k+ iterations in a second which is totally useless. Something not useless is to generate 1k+ iterations on huge spaces. At the same time, I don't need a 2^512 x 2^512 game space.
 
 The goal now will be to find a "critical" value between the small and the extra large. It probably more rely on the human representation. And then, I will benchmark again my algorithm.
+
+For this, I need another way to represent the game state.
+
+At this point I decided to use a class instead of a simple function. So I don't need to adapt the function prototype each time I want to change the game state representation.
+
+Also, I will chose the size of the game space to be 2^16 x 2^16.
