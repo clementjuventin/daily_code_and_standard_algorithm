@@ -26,15 +26,6 @@ Slab *Allocator<T>::get_slab_from_memory(Cache *cache, void *memory) {
     }
     current = current->next;
   }
-  current = cache->empty_slabs;
-  while (current != nullptr) {
-    if (current->memory <= memory &&
-        memory <
-            static_cast<char *>(current->memory) + current->total_objects) {
-      return current;
-    }
-    current = current->next;
-  }
   return nullptr;
 }
 
@@ -81,7 +72,6 @@ void Allocator<T>::initialize_slab(Cache *cache, Slab *slab) {
 
 template <typename T> void Allocator<T>::initialize_cache(Cache *cache) {
   cache->object_size = std::max(sizeof(T), sizeof(void *));
-  cache->empty_slabs = nullptr;
   cache->partial_slabs = nullptr;
   cache->full_slabs = nullptr;
   cache->slab_size = SLAB_MAX_SIZE / cache->object_size * cache->object_size;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef> // For std::size_t
+#include <cstddef> 
 
 #define SLAB_MAX_SIZE 1000 // SLAB max size in bytes
 
@@ -30,7 +30,8 @@ struct Cache {
 template <typename T>
 class Allocator {
 private:
-    Slab* get_slab(Cache* cache);
+    Slab* get_slab_from_memory(Cache *cache, void* memory);
+    void move_slab(Slab*& from, Slab *&to, Slab* slab);
     void initialize_slab(Cache* cache, Slab* slab); 
     void initialize_cache(Cache* cache);
 public:
@@ -42,28 +43,17 @@ public:
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    Cache* caches;          // List of caches
+    // Cache
+    Cache* cache;
 
-    // Default constructor
     Allocator() noexcept;
-
-    // Allocate memory for n objects of type T
-    T* allocate(std::size_t n);
-
-    // Deallocate memory for n objects of type T
+    T* allocate();
     void deallocate(T* p) noexcept;
 
-    // Equality operators (required by allocator concept)
     template <typename U>
     bool operator==(const Allocator<U>&) const noexcept;
 
     template <typename U>
     bool operator!=(const Allocator<U>&) const noexcept;
-};
-
-// Rebind allocator for a different type
-template <typename T, typename U>
-struct rebind {
-    using other = Allocator<U>;
 };
 
