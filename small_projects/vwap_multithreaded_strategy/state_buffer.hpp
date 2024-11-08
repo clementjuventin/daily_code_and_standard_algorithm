@@ -37,8 +37,10 @@ class StateBuffer
 
 public:
   StateBuffer();
-  bool try_push(State &&s);
-  bool try_pop(State &s);
+  /** Return MAX_CAPACITY if it works, the index of the last known tail if it fails */
+  size_t try_push(State &&s);
+  /** Return MAX_CAPACITY if it works, the index of the last known head if it fails */
+  size_t try_pop(State &s);
 
   void await_push(State &&s);
   void await_pop(State &s);

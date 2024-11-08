@@ -19,23 +19,4 @@ int main()
     engine_thread.join();
     worker.stop();
     worker_thread.join();
-
-    // const size_t buffer_size = 5;
-    // const size_t states_size = 1000;
-    // State states[states_size];
-    // State reciever[states_size];
-
-    // for (size_t i = 0; i < states_size; i++)
-    //     states[i] = {i, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-    // StateBuffer<buffer_size> buffer;
-
-    // for (size_t i = 0; i < states_size; i += buffer_size)
-    // {
-    //     size_t max_states = std::min(i + buffer_size, states_size);
-    //     for (size_t j = i; j < max_states; j++)
-    //         buffer.await_push(std::move(states[j]));
-    //     for (size_t j = i; j < max_states; j++)
-    //         buffer.await_pop(reciever[j]);
-    // }
 }
