@@ -14,7 +14,6 @@ bool StateBuffer<BUFFER_SIZE>::try_push(State &&s)
   size_t next_head = (current_head + 1) % (MAX_CAPACITY);
 
   size_t current_tail = tail.load(std::memory_order_acquire);
-  size_t diff = (MAX_CAPACITY + current_tail - next_head) % (MAX_CAPACITY);
   if (next_head == current_tail)
     return false;
 
@@ -23,7 +22,9 @@ bool StateBuffer<BUFFER_SIZE>::try_push(State &&s)
   head.store(next_head, std::memory_order_release);
 
   // diff == BUFFER_SIZE means the queue was empty. This prevent the notification to be sent when no threads are waiting
-  if (diff == BUFFER_SIZE)
+  if ((current_tail > next_head
+           ? current_tail - next_head
+           : current_tail + MAX_CAPACITY - next_head) == BUFFER_SIZE)
     head.notify_one();
   return true;
 }
@@ -35,7 +36,6 @@ bool StateBuffer<BUFFER_SIZE>::try_pop(State &s)
   size_t next_tail = (current_tail + 1) % (MAX_CAPACITY);
 
   size_t current_head = head.load(std::memory_order_acquire);
-  size_t diff = (MAX_CAPACITY + current_head - next_tail) % (MAX_CAPACITY);
   if (next_tail == current_head)
     return false;
 
@@ -43,7 +43,9 @@ bool StateBuffer<BUFFER_SIZE>::try_pop(State &s)
   tail.store(next_tail, std::memory_order_release);
 
   // diff == EMPTY_SLOTS means the queue was full. This prevent the notification to be sent when no threads are waiting
-  if (diff == EMPTY_SLOTS)
+  if ((current_head > next_tail
+           ? current_head - next_tail
+           : current_head + MAX_CAPACITY - next_tail) == EMPTY_SLOTS)
     tail.notify_one();
   return true;
 }

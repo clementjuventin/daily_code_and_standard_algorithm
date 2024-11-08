@@ -4,7 +4,7 @@
 #include "engine.hpp"
 #include "state_buffer.hpp"
 
-static void sync_buffer_push_and_pop(benchmark::State &state)
+static void sync_buffer_push_and_pop_extremity(benchmark::State &state)
 {
     const size_t states_size = 1000;
     State states[states_size];
@@ -50,7 +50,7 @@ static void sync_buffer_full_capacity(benchmark::State &state)
     }
 }
 
-static void sync_buffer_await_push_and_await_pop(benchmark::State &state)
+static void sync_buffer_await_push_and_await_pop_extremity(benchmark::State &state)
 {
     const size_t states_size = 1000;
     State states[states_size];
@@ -96,9 +96,9 @@ static void sync_buffer_await_full_capacity(benchmark::State &state)
     }
 }
 
-BENCHMARK(sync_buffer_push_and_pop);
+BENCHMARK(sync_buffer_push_and_pop_extremity);
 BENCHMARK(sync_buffer_full_capacity);
-BENCHMARK(sync_buffer_await_push_and_await_pop);
+BENCHMARK(sync_buffer_await_push_and_await_pop_extremity);
 BENCHMARK(sync_buffer_await_full_capacity);
 
 int main(int argc, char **argv)

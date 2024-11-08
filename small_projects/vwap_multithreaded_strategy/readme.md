@@ -23,12 +23,15 @@ The `Worker` v will consume the data from the queue and calculate the VWAP indic
 
 The `Pipeline` component will manage the data flow between the `Engine` and the `Worker`. Technically, it will be implemented as a lock-free circular buffer with a static capacity. This is the critical component that needs to be as efficient as possible.
 
-## Benchmark
+## Analysis
 
-We want to measure the performance of the pipeline by measuring the time it takes to process the whole dataset. For this, we will start by synchronously processing the data.
-
-## Results
+### Control or Efficiency
 
 I realized that one property of the queue were slowing down other properties of the buffer. 
-- The ability for a thread to be stopped when awaiting for a new element to be pushed in the queue is very expensive since it requires to notify and count all the awaiting threads. 
-For this project, I was not ready to trade efficiency for simplicity. I will just remove this feature and let the threads being stucked. 
+The ability for a thread to be stopped when awaiting for a new element to be pushed in the queue is very expensive since it requires to notify and count all the awaiting threads. It doubles the time it takes to push/pull an element in the queue.
+For this project, efficiency was the main focus. I just removed this feature (stop awaiting threads) because in a real production environment the pipeline is never stopped and if we still wanted to stop it we could just block the inputs until the queue is empty and then turn off the thread.
+
+### Optimizations
+
+I realized that the notification methods were very expensive. I started to think about a way to reduce the notifications and figured out that we could just notify the threads when the queue is full or empty. This gave a ~25% performance boost.
+
