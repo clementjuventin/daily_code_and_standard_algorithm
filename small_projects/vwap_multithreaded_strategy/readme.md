@@ -27,3 +27,8 @@ The `Pipeline` component will manage the data flow between the `Engine` and the 
 
 We want to measure the performance of the pipeline by measuring the time it takes to process the whole dataset. For this, we will start by synchronously processing the data.
 
+## Results
+
+I realized that one property of the queue were slowing down other properties of the buffer. 
+- The ability for a thread to be stopped when awaiting for a new element to be pushed in the queue is very expensive since it requires to notify and count all the awaiting threads. 
+For this project, I was not ready to trade efficiency for simplicity. I will just remove this feature and let the threads being stucked. 

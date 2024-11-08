@@ -102,5 +102,5 @@ void Engine<BUFFER_SIZE>::read_csv(const std::string &filename)
 template <std::size_t BUFFER_SIZE>
 void Engine<BUFFER_SIZE>::run()
 {
-  read_csv("./archive/ETHUSD_1m_Binance.csv");
+  read_csv("../archive/ETHUSD_1m_Binance.csv");
 }

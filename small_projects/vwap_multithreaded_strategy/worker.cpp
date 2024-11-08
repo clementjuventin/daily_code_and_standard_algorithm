@@ -25,7 +25,6 @@ void Worker<BUFFER_SIZE, VWAP_BASE>::run()
 template <std::size_t BUFFER_SIZE, std::size_t VWAP_BASE>
 void Worker<BUFFER_SIZE, VWAP_BASE>::calculate_vwap(const State &s)
 {
-  // TODO: spacial coherence?
   double volume = s.volume;
   double price_volume = volume * (s.high + s.low + s.close) / 3;
 

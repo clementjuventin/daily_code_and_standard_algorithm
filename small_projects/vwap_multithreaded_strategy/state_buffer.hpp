@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <atomic>
 
-// TODO: Check size
 /** Represent the state of a market.
  * Size: 8* 12 bytes = 96 bytes */
 struct State
@@ -26,15 +25,15 @@ struct State
 template <std::size_t BUFFER_SIZE>
 class StateBuffer
 {
-  State buffer[BUFFER_SIZE + 2];
+  static const size_t EMPTY_SLOTS = 2;
+  static const size_t MAX_CAPACITY = BUFFER_SIZE + EMPTY_SLOTS;
+  State buffer[MAX_CAPACITY];
   std::atomic<size_t> head;
   std::atomic<size_t> tail;
-  std::atomic<bool> stop_waiting;
-  std::atomic<size_t> awaiting_threads;
+
 
 public:
   StateBuffer();
-  void clear_waiting_threads();
   bool try_push(State &&s);
   bool try_pop(State &s);
 
