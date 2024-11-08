@@ -35,3 +35,6 @@ For this project, efficiency was the main focus. I just removed this feature (st
 
 I realized that the notification methods were very expensive. I started to think about a way to reduce the notifications and figured out that we could just notify the threads when the queue is full or empty. This gave a ~25% performance boost.
 
+I removed some modulo operations that were not necessary.
+- Changed the MAX_CAPACITY to a power of 2 to avoid the modulo operation in the push and pull methods.
+- Removed the modulo operation to calculate the difference between the head and the tail.

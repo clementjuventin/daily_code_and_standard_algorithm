@@ -17,11 +17,13 @@ class Worker
   double vwap;
 
   void calculate_vwap(const State &s);
+
 public:
   Worker(StateBuffer<BUFFER_SIZE> &b);
   void stop();
   void run();
 };
 
-template class Worker<5ul, 10ul>;
-template class Worker<100ul, 10ul>;
+template class Worker<6ul, 10ul>;
+template class Worker<126ul, 10ul>;
+template class Worker<254ul, 10ul>;

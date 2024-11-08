@@ -11,7 +11,8 @@ template <std::size_t BUFFER_SIZE>
 bool StateBuffer<BUFFER_SIZE>::try_push(State &&s)
 {
   size_t current_head = head.load(std::memory_order_relaxed);
-  size_t next_head = (current_head + 1) % (MAX_CAPACITY);
+  // Because MAX_CAPACITY is a power of two
+  size_t next_head = (current_head + 1) & (MAX_CAPACITY_MASK);
 
   size_t current_tail = tail.load(std::memory_order_acquire);
   if (next_head == current_tail)
@@ -33,7 +34,8 @@ template <std::size_t BUFFER_SIZE>
 bool StateBuffer<BUFFER_SIZE>::try_pop(State &s)
 {
   size_t current_tail = tail.load(std::memory_order_relaxed);
-  size_t next_tail = (current_tail + 1) % (MAX_CAPACITY);
+  // Because MAX_CAPACITY is a power of two
+  size_t next_tail = (current_tail + 1) & (MAX_CAPACITY_MASK);
 
   size_t current_head = head.load(std::memory_order_acquire);
   if (next_tail == current_head)

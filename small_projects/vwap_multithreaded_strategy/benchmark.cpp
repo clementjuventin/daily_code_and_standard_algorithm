@@ -6,6 +6,7 @@
 
 static void sync_buffer_push_and_pop_extremity(benchmark::State &state)
 {
+    const size_t buffer_size = 126;
     const size_t states_size = 1000;
     State states[states_size];
     State reciever[states_size];
@@ -13,7 +14,7 @@ static void sync_buffer_push_and_pop_extremity(benchmark::State &state)
     for (size_t i = 0; i < states_size; i++)
         states[i] = {i, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-    StateBuffer<100> buffer;
+    StateBuffer<buffer_size> buffer;
 
     for (auto _ : state)
     {
@@ -27,7 +28,7 @@ static void sync_buffer_push_and_pop_extremity(benchmark::State &state)
 
 static void sync_buffer_full_capacity(benchmark::State &state)
 {
-    const size_t buffer_size = 100;
+    const size_t buffer_size = 126;
     const size_t states_size = 1000;
     State states[states_size];
     State reciever[states_size];
@@ -41,7 +42,7 @@ static void sync_buffer_full_capacity(benchmark::State &state)
     {
         for (size_t i = 0; i < states_size; i += buffer_size)
         {
-            size_t max_states = i + buffer_size;
+            size_t max_states = std::min(i + buffer_size, states_size);
             for (size_t j = i; j < max_states; j++)
                 buffer.try_push(std::move(states[j]));
             for (size_t j = i; j < max_states; j++)
@@ -52,6 +53,7 @@ static void sync_buffer_full_capacity(benchmark::State &state)
 
 static void sync_buffer_await_push_and_await_pop_extremity(benchmark::State &state)
 {
+    const size_t buffer_size = 126;
     const size_t states_size = 1000;
     State states[states_size];
     State reciever[states_size];
@@ -59,7 +61,7 @@ static void sync_buffer_await_push_and_await_pop_extremity(benchmark::State &sta
     for (size_t i = 0; i < states_size; i++)
         states[i] = {i, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-    StateBuffer<100> buffer;
+    StateBuffer<buffer_size> buffer;
 
     for (auto _ : state)
     {
@@ -73,7 +75,7 @@ static void sync_buffer_await_push_and_await_pop_extremity(benchmark::State &sta
 
 static void sync_buffer_await_full_capacity(benchmark::State &state)
 {
-    const size_t buffer_size = 100;
+    const size_t buffer_size = 126;
     const size_t states_size = 1000;
     State states[states_size];
     State reciever[states_size];

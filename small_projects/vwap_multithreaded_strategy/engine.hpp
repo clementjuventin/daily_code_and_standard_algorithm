@@ -14,5 +14,6 @@ public:
   void run();
 };
 
-template class Engine<5ul>;
-template class Engine<100ul>;
+template class Engine<6ul>;
+template class Engine<126ul>;
+template class Engine<254ul>;

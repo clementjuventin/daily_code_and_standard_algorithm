@@ -8,12 +8,13 @@
 
 int main()
 {
-    StateBuffer<100> buffer{};
-    Engine<100> engine{buffer};
-    Worker<100, 10> worker{buffer};
+    static const size_t BUFFER_SIZE = 126;
+    StateBuffer<BUFFER_SIZE> buffer{};
+    Engine<BUFFER_SIZE> engine{buffer};
+    Worker<BUFFER_SIZE, 10> worker{buffer};
 
-    std::thread engine_thread(std::bind(&Engine<100>::run, &engine));
-    std::thread worker_thread(std::bind(&Worker<100, 10>::run, &worker));
+    std::thread engine_thread(std::bind(&Engine<BUFFER_SIZE>::run, &engine));
+    std::thread worker_thread(std::bind(&Worker<BUFFER_SIZE, 10>::run, &worker));
 
     engine_thread.join();
     worker.stop();
