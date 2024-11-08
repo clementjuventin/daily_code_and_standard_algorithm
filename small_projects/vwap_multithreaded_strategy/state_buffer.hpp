@@ -26,7 +26,7 @@ struct State
 template <std::size_t BUFFER_SIZE>
 class StateBuffer
 {
-  State buffer[BUFFER_SIZE + 1];
+  State buffer[BUFFER_SIZE + 2];
   std::atomic<size_t> head;
   std::atomic<size_t> tail;
   std::atomic<bool> stop_waiting;
@@ -35,10 +35,10 @@ class StateBuffer
 public:
   StateBuffer();
   void clear_waiting_threads();
-  bool try_push(const State &s);
+  bool try_push(State &&s);
   bool try_pop(State &s);
 
-  void await_push(const State &s);
+  void await_push(State &&s);
   void await_pop(State &s);
 };
 

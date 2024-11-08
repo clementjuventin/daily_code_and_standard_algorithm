@@ -85,7 +85,7 @@ void Engine<BUFFER_SIZE>::read_csv(const std::string &filename)
     s.ignore = std::stod(cell);
 
     // Push the state object into the buffer
-    bool pushed = buffer.try_push(s);
+    bool pushed = buffer.try_push(std::move(s));
     missed_lines += !pushed;
     line_n++;
 

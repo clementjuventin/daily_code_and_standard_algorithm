@@ -5,21 +5,19 @@
 #include <iostream>
 
 template <std::size_t BUFFER_SIZE>
-StateBuffer<BUFFER_SIZE>::StateBuffer() : head(0), tail(BUFFER_SIZE), stop_waiting{false} {}
+StateBuffer<BUFFER_SIZE>::StateBuffer() : head(0), tail(BUFFER_SIZE+1), stop_waiting{false} {}
 
 template <std::size_t BUFFER_SIZE>
-bool StateBuffer<BUFFER_SIZE>::try_push(const State &s)
+bool StateBuffer<BUFFER_SIZE>::try_push(State &&s)
 {
-  // TODO: Doc
   size_t current_head = head.load(std::memory_order_relaxed);
-  size_t next_head = (current_head + 1) % (BUFFER_SIZE + 1);
+  size_t next_head = (current_head + 1) % (BUFFER_SIZE + 2);
 
   size_t current_tail = tail.load(std::memory_order_acquire);
   if (next_head == current_tail)
     return false;
 
-  // TODO: Move??
-  buffer[current_head] = s;
+  buffer[current_head] = std::move(s);
 
   head.store(next_head, std::memory_order_release);
   head.notify_one();
@@ -30,10 +28,9 @@ template <std::size_t BUFFER_SIZE>
 bool StateBuffer<BUFFER_SIZE>::try_pop(State &s)
 {
   size_t current_tail = tail.load(std::memory_order_relaxed);
-  size_t next_tail = (current_tail + 1) % (BUFFER_SIZE + 1);
+  size_t next_tail = (current_tail + 1) % (BUFFER_SIZE + 2);
 
   size_t current_head = head.load(std::memory_order_acquire);
-
   if (next_tail == current_head)
     return false;
 
@@ -46,10 +43,10 @@ bool StateBuffer<BUFFER_SIZE>::try_pop(State &s)
 }
 
 template <std::size_t BUFFER_SIZE>
-void StateBuffer<BUFFER_SIZE>::await_push(const State &s)
+void StateBuffer<BUFFER_SIZE>::await_push(State &&s)
 {
   awaiting_threads.fetch_add(1, std::memory_order_relaxed);
-  while (!stop_waiting.load(std::memory_order_acquire) && !try_push(s))
+  while (!stop_waiting.load(std::memory_order_acquire) && !try_push(std::forward<State>(s)))
     tail.wait(tail.load(std::memory_order_relaxed));
   awaiting_threads.fetch_sub(1, std::memory_order_relaxed);
   awaiting_threads.notify_one();
