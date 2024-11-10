@@ -23,7 +23,3 @@ public:
   void stop();
   void run();
 };
-
-template class Worker<6ul, 10ul>;
-template class Worker<126ul, 10ul>;
-template class Worker<254ul, 10ul>;

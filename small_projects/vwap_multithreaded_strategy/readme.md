@@ -38,3 +38,28 @@ I realized that the notification methods were very expensive. I started to think
 I removed some modulo operations that were not necessary.
 - Changed the MAX_CAPACITY to a power of 2 to avoid the modulo operation in the push and pull methods.
 - Removed the modulo operation to calculate the difference between the head and the tail.
+
+### Deadlocks
+
+At some point I had a huge issue with deadlocks. I struggled to understand the source because the memory management for atomic variables was not clear for me.
+After some time spent on clarifying subject, I understood that my main issues creating deadlocks were reads after reads while I took a decision based on the first read and awaited another condition on the next read.
+
+## Benchmark
+
+I benchmarked the buffer. I tested sequencial push/pull and await push/pull. I tested when we were always pushing and pulling on the first element (to trigger the full/empty notifications) and when we were fulling and emptying the buffer.
+I also tested with multiples threads, but honestly, I don't know if it provides any useful information. 
+
+I used the results to improve step by step the buffer.
+```
+-----------------------------------------------------------------------------------------
+Benchmark                                               Time             CPU   Iterations
+-----------------------------------------------------------------------------------------
+sync_buffer_push_and_pop_extremity                   6420 ns         6420 ns       109710
+sync_buffer_full_capacity                            4954 ns         4953 ns       136344
+sync_buffer_await_push_and_await_pop_extremity       7183 ns         7183 ns        97173
+sync_buffer_await_full_capacity                      6853 ns         6851 ns       101816
+async_1producer_1consumer_buffer_full_capacity     273991 ns       216623 ns         3273
+async_2producer_2consumer_buffer_full_capacity     621641 ns       468633 ns         1461
+```
+
+As you can see, using the await pull/push methods introduce an overhead of 15% to 40%.

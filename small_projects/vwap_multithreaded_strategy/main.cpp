@@ -6,17 +6,75 @@
 #include "worker.hpp"
 #include "state_buffer.hpp"
 
+#include <cstdint>
+
+// #define RDTSC() ({           \
+//     uint64_t _cycles;        \
+//     asm volatile(            \
+//         "rdtsc\n\t"          \
+//         "shl $32, %%rdx\n\t" \
+//         "or %%rdx, %%rax"    \
+//         : "=a"(_cycles)      \
+//         :                    \
+//         : "rdx");            \
+//     _cycles;                 \
+// })
+
 int main()
 {
-    static const size_t BUFFER_SIZE = 126;
-    StateBuffer<BUFFER_SIZE> buffer{};
-    Engine<BUFFER_SIZE> engine{buffer};
-    Worker<BUFFER_SIZE, 10> worker{buffer};
+    // auto a = RDTSC();
+    // auto b = RDTSC();
 
-    std::thread engine_thread(std::bind(&Engine<BUFFER_SIZE>::run, &engine));
-    std::thread worker_thread(std::bind(&Worker<BUFFER_SIZE, 10>::run, &worker));
+    const size_t buffer_size = 127;
+    const size_t states_size = 1000;
+    State states[states_size];
+    State reciever[states_size];
+    StateBuffer<buffer_size> buffer;
 
-    engine_thread.join();
-    worker.stop();
-    worker_thread.join();
+    std::cout << "async_1producer_1consumer_buffer_full_capacity" << std::endl;
+    for (size_t k = 0; k < 10000; k++)
+    {
+        for (size_t i = 0; i < states_size; i += buffer_size)
+        {
+            size_t max_states = std::min(i + buffer_size, states_size);
+            std::thread producer([&]
+                                 {
+                for (size_t j = i; j < max_states; j++)
+                    buffer.await_push(std::move(states[j])); });
+            std::thread consumer([&]
+                                 {
+                for (size_t j = i; j < max_states; j++)
+                    buffer.await_pop(reciever[j]); });
+
+            producer.join();
+            consumer.join();
+        }
+
+        // TBuffer<127, std::array<char, 128>> buffer{};
+        // // TBuffer<126, char[64]> buffer2{};
+        // // TBuffer<126, char[96]> buffer3{};
+        // const size_t buffer_size = 127;
+        // const size_t states_size = 1000;
+        // std::array<char, 128> c50;
+
+        // for (size_t i = 0; i < states_size; i += buffer_size)
+        // {
+        //     size_t max_states = std::min(i + buffer_size, states_size);
+        //     std::thread producer([&]
+        //                          {
+        //                              for (size_t j = i; j < max_states; j++)
+        //                                  {
+        //                                     buffer.try_push(std::move(c50));
+        //                                     while (buffer.size() != 0);
+        //                                  } });
+        //     std::thread consumer([&]
+        //                          {
+        //                              for (size_t j = i; j < max_states; j++)
+        //                              {
+        //                                     buffer.await_pop(c50);
+        //                              } });
+
+        //     producer.join();
+        //     consumer.join();
+    }
 }
