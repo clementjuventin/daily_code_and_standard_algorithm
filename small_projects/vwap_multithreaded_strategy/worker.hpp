@@ -23,3 +23,5 @@ public:
   void stop();
   void run();
 };
+
+template class Worker<1023, 5>;

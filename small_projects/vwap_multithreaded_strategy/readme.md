@@ -50,16 +50,3 @@ I benchmarked the buffer. I tested sequencial push/pull and await push/pull. I t
 I also tested with multiples threads, but honestly, I don't know if it provides any useful information. 
 
 I used the results to improve step by step the buffer.
-```
------------------------------------------------------------------------------------------
-Benchmark                                               Time             CPU   Iterations
------------------------------------------------------------------------------------------
-sync_buffer_push_and_pop_extremity                   6420 ns         6420 ns       109710
-sync_buffer_full_capacity                            4954 ns         4953 ns       136344
-sync_buffer_await_push_and_await_pop_extremity       7183 ns         7183 ns        97173
-sync_buffer_await_full_capacity                      6853 ns         6851 ns       101816
-async_1producer_1consumer_buffer_full_capacity     273991 ns       216623 ns         3273
-async_2producer_2consumer_buffer_full_capacity     621641 ns       468633 ns         1461
-```
-
-As you can see, using the await pull/push methods introduce an overhead of 15% to 40%.

@@ -1,6 +1,7 @@
 #include "worker.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <cmath>
 
 template <std::size_t BUFFER_SIZE, std::size_t VWAP_BASE>
 Worker<BUFFER_SIZE, VWAP_BASE>::Worker(StateBuffer<BUFFER_SIZE> &b) : buffer(b){};
@@ -25,7 +26,7 @@ void Worker<BUFFER_SIZE, VWAP_BASE>::run()
 template <std::size_t BUFFER_SIZE, std::size_t VWAP_BASE>
 void Worker<BUFFER_SIZE, VWAP_BASE>::calculate_vwap(const State &s)
 {
-  double volume = s.volume;
+  double volume = std::max(s.volume, 0.0000001);
   double price_volume = volume * (s.high + s.low + s.close) / 3;
 
   cumulative_volume += volume;
@@ -43,8 +44,16 @@ void Worker<BUFFER_SIZE, VWAP_BASE>::calculate_vwap(const State &s)
     prices_volume.pop();
   }
 
-  if (cumulative_volume != 0)
+  if (cumulative_volume >= 0.00001)
     vwap = cumulative_price_volume / cumulative_volume;
   else
     vwap = 0;
+
+  if (std::isnan(vwap))
+  {
+
+    throw std::runtime_error("VWAP is NaN");
+  }
+
+  std::cout << "vwap " << vwap << " cumulative_v " << cumulative_volume << " cumulative_p_v " << cumulative_price_volume << " price_volume " << price_volume << " volume " << volume << "\n";
 }

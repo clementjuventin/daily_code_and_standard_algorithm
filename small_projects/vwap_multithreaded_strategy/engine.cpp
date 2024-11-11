@@ -88,9 +88,6 @@ void Engine<BUFFER_SIZE>::read_csv(const std::string &filename)
     bool pushed = buffer.try_push(std::move(s));
     missed_lines += !pushed;
     line_n++;
-
-    if (line_n == 100000)
-      break;
   }
 
   std::cout << "Finished to read " << line_n << " lines\n";

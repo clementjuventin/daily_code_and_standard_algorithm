@@ -50,7 +50,7 @@ public:
   {
     size_t current_head = head.load(std::memory_order_acquire);
     size_t current_tail = tail.load(std::memory_order_acquire);
-    return ((current_head - current_tail) & MAX_CAPACITY_MASK) - EMPTY_SLOTS;
+    return size(current_head, current_tail);
   };
 
 private:

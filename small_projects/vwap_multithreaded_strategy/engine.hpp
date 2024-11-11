@@ -13,3 +13,5 @@ public:
   Engine(StateBuffer<BUFFER_SIZE> &buffer);
   void run();
 };
+
+template class Engine<1023>;
