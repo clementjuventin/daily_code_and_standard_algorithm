@@ -7,119 +7,118 @@
 
 static void sync_buffer_push_and_pop_extremity(benchmark::State &state)
 {
-    const size_t buffer_size = 127;
-    const size_t states_size = 1000;
-    State states[states_size];
-    State reciever[states_size];
-
-    StateBuffer<buffer_size> buffer;
+    State s;
+    State r;
+    StateBuffer<127> buffer;
 
     for (auto _ : state)
     {
-        for (size_t i = 0; i < states_size; i++)
-        {
-            buffer.try_push(std::move(states[i]));
-            buffer.try_pop(reciever[i]);
-        }
+        buffer.try_push(std::move(s));
+        buffer.try_pop(r);
     }
 }
 
-static void sync_buffer_full_capacity(benchmark::State &state)
+static void sync_buffer_push_and_pop_inside(benchmark::State &state)
 {
-    const size_t buffer_size = 127;
-    const size_t states_size = 1000;
-    State states[states_size];
-    State reciever[states_size];
-
-    StateBuffer<buffer_size> buffer;
+    State s;
+    State r;
+    StateBuffer<127> buffer;
+    buffer.try_push(State());
 
     for (auto _ : state)
     {
-        for (size_t i = 0; i < states_size; i += buffer_size)
-        {
-            size_t max_states = std::min(i + buffer_size, states_size);
-            for (size_t j = i; j < max_states; j++)
-                buffer.try_push(std::move(states[j]));
-            for (size_t j = i; j < max_states; j++)
-                buffer.try_pop(reciever[j]);
-        }
+        buffer.try_push(std::move(s));
+        buffer.try_pop(r);
     }
 }
 
-static void sync_buffer_await_push_and_await_pop_extremity(benchmark::State &state)
+static void sync_buffer_push_full_capacity_pull_full_capacity(benchmark::State &state)
 {
     const size_t buffer_size = 127;
-    const size_t states_size = 1000;
-    State states[states_size];
-    State reciever[states_size];
-
+    State s;
+    State r;
     StateBuffer<buffer_size> buffer;
 
     for (auto _ : state)
     {
-        for (size_t i = 0; i < states_size; i++)
-        {
-            buffer.await_push(std::move(states[i]));
-            buffer.await_pop(reciever[i]);
-        }
+        for (size_t j = 0; j < buffer_size; j++)
+            buffer.try_push(std::move(s));
+        for (size_t j = 0; j < buffer_size; j++)
+            buffer.try_pop(r);
     }
 }
 
-static void sync_buffer_await_full_capacity(benchmark::State &state)
+static void async_1producer_1consumer_push_full_capacity_pull_full_capacity(benchmark::State &state)
 {
     const size_t buffer_size = 127;
-    const size_t states_size = 1000;
-    State states[states_size];
-    State reciever[states_size];
+    State s;
+    State r;
     StateBuffer<buffer_size> buffer;
+    std::thread producer, consumer;
 
     for (auto _ : state)
     {
-        for (size_t i = 0; i < states_size; i += buffer_size)
-        {
-            size_t max_states = std::min(i + buffer_size, states_size);
-            for (size_t j = i; j < max_states; j++)
-                buffer.await_push(std::move(states[j]));
-            for (size_t j = i; j < max_states; j++)
-                buffer.await_pop(reciever[j]);
-        }
+        producer = std::thread([&]
+                               {
+            for (size_t j = 0; j < buffer_size; j++)
+                buffer.await_push(std::move(s)); });
+        consumer = std::thread([&]
+                               {
+            for (size_t j = 0; j < buffer_size; j++)
+                buffer.await_pop(r); });
+
+        producer.join();
+        consumer.join();
     }
 }
 
-static void async_1producer_1consumer_buffer_full_capacity(benchmark::State &state)
+static void async_empty_buffer_await_pop(benchmark::State &state)
 {
     const size_t buffer_size = 127;
-    const size_t states_size = 1000;
-    State states[states_size];
-    State reciever[states_size];
+    State s;
+    State r;
     StateBuffer<buffer_size> buffer;
+    std::thread consumer;
 
     for (auto _ : state)
     {
-        for (size_t i = 0; i < states_size; i += buffer_size)
-        {
-            size_t max_states = std::min(i + buffer_size, states_size);
-            std::thread producer([&]
-                                 {
-                for (size_t j = i; j < max_states; j++)
-                    buffer.await_push(std::move(states[j])); });
-            std::thread consumer([&]
-                                 {
-                for (size_t j = i; j < max_states; j++)
-                    buffer.await_pop(reciever[j]); });
+        state.PauseTiming();
+        consumer = std::thread([&]
+                               { buffer.await_pop(r); });
+        state.ResumeTiming();
+        buffer.try_push(std::move(s));
+        consumer.join();
+    }
+}
 
-            producer.join();
-            consumer.join();
-        }
+static void async_full_buffer_await_push(benchmark::State &state)
+{
+    const size_t buffer_size = 127;
+    State s;
+    State r;
+    StateBuffer<buffer_size> buffer;
+    std::thread producer;
+
+    for (size_t j = 0; j < buffer_size; j++)
+        buffer.try_push(State());
+
+    for (auto _ : state)
+    {
+        state.PauseTiming();
+        producer = std::thread([&]
+                               { buffer.await_push(std::move(s)); });
+        state.ResumeTiming();
+        buffer.try_pop(r);
+        producer.join();
     }
 }
 
 BENCHMARK(sync_buffer_push_and_pop_extremity);
-BENCHMARK(sync_buffer_full_capacity);
-BENCHMARK(sync_buffer_await_push_and_await_pop_extremity);
-BENCHMARK(sync_buffer_await_full_capacity);
-
-BENCHMARK(async_1producer_1consumer_buffer_full_capacity);
+BENCHMARK(sync_buffer_push_and_pop_inside);
+BENCHMARK(sync_buffer_push_full_capacity_pull_full_capacity);
+BENCHMARK(async_full_buffer_await_push);
+BENCHMARK(async_empty_buffer_await_pop);
+BENCHMARK(async_1producer_1consumer_push_full_capacity_pull_full_capacity);
 
 int main(int argc, char **argv)
 {

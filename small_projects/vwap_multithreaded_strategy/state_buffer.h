@@ -41,9 +41,9 @@ public:
   void await_push(T &&s);
   void await_pop(T &s);
 
-  inline size_t size(size_t current_head, size_t current_tail) const
+  inline size_t size(const size_t &current_head, const size_t &current_tail) const
   {
-    return (current_head - current_tail) & MAX_CAPACITY_MASK;
+    return ((current_head - current_tail) & MAX_CAPACITY_MASK);
   };
 
   inline size_t size() const
